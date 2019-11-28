@@ -79,15 +79,39 @@ def find_notes_by_user(user):
     for index, note in enumerate(user.notes, start=1):
         print(
             f'\tNote {index}: {note.message}\n\tCreated: {note.date_created}')
+# finds user
 
 
-# ren = Users(username='llucas314', first_name='Lorenzo', last_name='Lucas')
-# ren.save()
-# # ren.delete_instance()
-# note = Notes(message='Hi, This is my first note!',
-#              date_created=datetime.now().strftime("%a, %b %d, %Y @ %I:%M%p"), username='llucas314')
-# note.save()
-current_user = create_user()
+def find_user(name):
+    user = Users.select().where(Users.username == name)
+    if user.exists():
+        return user
+    else:
+        print('User not found.')
+        login()
+
+# creates user or logs in
+
+
+def login():
+    try:
+        choice = int(input(
+            'Enter a number:\n\t(1) - Add an account\n\t(2) - Login\n\t'))
+    except ValueError:
+        print('Invalid input')
+        login()
+    if choice == 1:
+        current_user = create_user()
+        return current_user
+    elif choice == 2:
+        username = input('Enter your username: ')
+        current_user = find_user(username)
+        return current_user
+    else:
+        print('Invalid input')
+        login()
+
+
 print('current_user: ' + current_user.username)
 add_note(current_user)
 find_notes_by_user(current_user)
