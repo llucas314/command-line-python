@@ -89,7 +89,7 @@ def find_user(name):
         return user
     else:
         print('User not found.')
-        login()
+        start()
 
 # creates user or logs in
 
@@ -100,7 +100,7 @@ def login():
             'Enter a number:\n\t(1) - Add an account\n\t(2) - Login\n\t'))
     except ValueError:
         print('Invalid input')
-        login()
+        start()
     if choice == 1:
         current_user = create_user()
         return current_user
@@ -110,7 +110,7 @@ def login():
         return current_user
     else:
         print('Invalid input')
-        login()
+        start()
 
 # select options for logged in user
 
@@ -121,7 +121,7 @@ def options(current_user):
             'Enter a number:\n\t(1) - Add a note\n\t(2) - View all notes\n\t(3) - Log Out\n\t(4) - Exit Program'))
     except ValueError:
         print('Invalid input')
-        options()
+        options(current_user)
     if choice == 1:
         add_note(current_user)
 
@@ -129,9 +129,19 @@ def options(current_user):
         find_notes_by_user(current_user)
 
     elif choice == 3:
-        login()
+        start()
     elif choice == 4:
         sys.exit()
     else:
         print('Invalid input')
-        options()
+        options(current_user)
+
+# starts app
+
+
+def start():
+    current_user = login()
+    options(current_user)
+
+
+start()
