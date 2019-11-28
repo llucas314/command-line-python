@@ -48,7 +48,7 @@ def create_user():
     new_user = Users(username=username, first_name=first_name,
                      last_name=last_name)
     new_user.save()
-    return username
+    return new_user
 
 # checks if username is available
 
@@ -64,14 +64,21 @@ def available(name):
 # adds notes to current user
 
 
-def add_note(name):
+def add_note(user):
     message = input('Write a note: ')
     new_note = Notes(message=message, date_created=datetime.now().strftime(
-        "%a, %b %d, %Y @ %I:%M%p"), username=name)
+        "%a, %b %d, %Y @ %I:%M%p"), username=user.username)
     new_note.save()
     return new_note
 
 # read notes by username
+
+
+def find_notes_by_user(user):
+    print(f'Notes by {user.username}')
+    for index, note in enumerate(user.notes, start=1):
+        print(
+            f'\tNote {index}: {note.message}\n\tCreated: {note.date_created}')
 
 
 # ren = Users(username='llucas314', first_name='Lorenzo', last_name='Lucas')
@@ -81,5 +88,6 @@ def add_note(name):
 #              date_created=datetime.now().strftime("%a, %b %d, %Y @ %I:%M%p"), username='llucas314')
 # note.save()
 current_user = create_user()
-print('current_user: ' + current_user)
+print('current_user: ' + current_user.username)
 add_note(current_user)
+find_notes_by_user(current_user)
