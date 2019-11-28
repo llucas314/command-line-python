@@ -60,8 +60,16 @@ def available(name):
         return False
     else:
         return True
+
 # adds notes to current user
 
+
+def add_note(name):
+    message = input('Write a note: ')
+    new_note = Notes(message=message, date_created=datetime.now().strftime(
+        "%a, %b %d, %Y @ %I:%M%p"), username=name)
+    new_note.save()
+    return new_note
 
 # read notes by username
 
@@ -73,4 +81,5 @@ def available(name):
 #              date_created=datetime.now().strftime("%a, %b %d, %Y @ %I:%M%p"), username='llucas314')
 # note.save()
 current_user = create_user()
-print(current_user)
+print('current_user: ' + current_user)
+add_note(current_user)
