@@ -91,10 +91,14 @@ class Home:
         print('Note created.')
 
     def find_notes_by_user(self):
-        print(f'Notes by {self.current_user.username}:')
-        for index, note in enumerate(self.current_user.notes):
-            print(
-                f'\tNote {len(self.current_user.notes)-index}: {note.message}\n\tCreated: {note.date_created}')
+        length = len(self.current_user.notes)
+        if length == 0:
+            print(f'{self.current_user.username} does not have any notes currently.')
+        else:
+            print(f'Notes by {self.current_user.username}:')
+            for index, note in enumerate(self.current_user.notes):
+                print(
+                    f'\tNote {length-index}: {note.message}\n\tCreated: {note.date_created}')
 
     def find_user(self, name):
         try:
