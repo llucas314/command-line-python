@@ -68,9 +68,9 @@ class Home:
         print(self.current_user.username)
         try:
             choice = int(input(
-                'Enter a number:\n\t(1) - Add a note\n\t(2) - View all notes\n\t(3) - Log Out\n\t(4) - Exit Program\n\t'))
+                'Choose an option:\n\t(1) - Add a note\n\t(2) - View all notes\n\t(3) - Log Out\n\t(4) - Exit Program\n\t'))
             if choice == 1:
-                print('add_note(current_user)')
+                self.add_note()
             elif choice == 2:
                 print('find_notes_by_user(current_user)')
             elif choice == 3:
@@ -83,6 +83,12 @@ class Home:
         except ValueError:
             print('Invalid input')
             self.options()
+
+    def add_note(self):
+        message = input('Write a note: ')
+        new_note = Note(message, self.current_user.username)
+        new_note.create_note()
+        print('Note created.')
 
     def find_user(self, name):
         try:
@@ -114,9 +120,15 @@ class User:
             return True
 
 
-class Notes:
-    def __init__(self, message):
+class Note:
+    def __init__(self, message, user):
         self.message = message
+        self.username = user
+
+    def create_note(self):
+        new_note = NotesModel(message=self.message, date_created=datetime.now().strftime(
+            "%a, %b %d, %Y @ %I:%M%p"), username=self.username)
+        new_note.save()
 
 
 home = Home()
