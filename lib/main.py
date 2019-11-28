@@ -72,7 +72,7 @@ class Home:
             if choice == 1:
                 self.add_note()
             elif choice == 2:
-                print('find_notes_by_user(current_user)')
+                self.find_notes_by_user()
             elif choice == 3:
                 self.login()
             elif choice == 4:
@@ -89,6 +89,12 @@ class Home:
         new_note = Note(message, self.current_user.username)
         new_note.create_note()
         print('Note created.')
+
+    def find_notes_by_user(self):
+        print(f'Notes by {self.current_user.username}:')
+        for index, note in enumerate(self.current_user.notes):
+            print(
+                f'\tNote {len(self.current_user.notes)-index}: {note.message}\n\tCreated: {note.date_created}')
 
     def find_user(self, name):
         try:
