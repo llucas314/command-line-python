@@ -17,131 +17,82 @@ class BaseModel(Model):
 # defining user model
 
 
-class Users(BaseModel):
+class UsersModel(BaseModel):
     user_id = AutoField()
-    username = CharField(unique=True)
     first_name = CharField()
     last_name = CharField()
+    username = CharField(unique=True)
 
 # defining note model
 
 
-class Notes(BaseModel):
+class NotesModel(BaseModel):
     note_id = AutoField()
     message = TextField()
     date_created = CharField()
-    username = ForeignKeyField(Users, field='username', backref='notes')
+    username = ForeignKeyField(UsersModel, field='username', backref='notes')
 
 
 # establishing tables
-db.create_tables([Users])
-db.create_tables([Notes])
-
-# create user
+db.create_tables([UsersModel])
+db.create_tables([NotesModel])
 
 
-def create_user():
-    first_name = input('Enter your first name: ')
-    last_name = input('Enter your last name: ')
-    username = input('Enter a username: ')
-    while not available(username):
-        username = input('Enter a different username: ')
-    new_user = Users(username=username, first_name=first_name,
-                     last_name=last_name)
-    new_user.save()
-    return new_user
+class Home:
+    def __init__(self):
+        is_logged_in = False
+        current_user = None
 
-# checks if username is available
+    def login(self):
+        try:
+            choice = int(input(
+                'Enter a number:\n\t(1) - Add an account\n\t(2) - Login\n\t'))
+        except ValueError:
+            print('Invalid input')
+            self.login()
+        if choice == 1:
+            new_user = User()
+            print(f'new user: {new_user}')
+            self.current_user = UsersModel(
+                first_name=new_user.first_name, last_name=new_user.last_name, username=new_user.username)
+            self.current_user.save()
+            print(self.current_user)
+        elif choice == 2:
+            username = input('Enter your username: ')
+            self.current_user = self.find_user(username)
+        else:
+            print('Invalid input')
+            self.login()
 
-
-def available(name):
-    existing = Users.select().where(Users.username == name)
-    if existing.exists():
-        print(f'{name} is already taken by another user.')
-        return False
-    else:
-        return True
-
-# adds notes to current user
-
-
-def add_note(user):
-    message = input('Write a note: ')
-    new_note = Notes(message=message, date_created=datetime.now().strftime(
-        "%a, %b %d, %Y @ %I:%M%p"), username=user.username)
-    new_note.save()
-    return new_note
-
-# read notes by username
-
-
-def find_notes_by_user(user):
-    print(f'Notes by {user.username}')
-    for index, note in enumerate(user.notes, start=1):
-        print(
-            f'\tNote {index}: {note.message}\n\tCreated: {note.date_created}')
-# finds user
+    def find_user(self, name):
+        try:
+            user = UsersModel.get(UsersModel.username == name)
+            return user
+        except DoesNotExist:
+            print('User not found.')
+            self.login()
 
 
-def find_user(name):
-    user = Users.select().where(Users.username == name)
-    if user.exists():
-        return user
-    else:
-        print('User not found.')
-        start()
+class User:
+    def __init__(self):
+        self.first_name = input('Enter your first name: ')
+        self.last_name = input('Enter your last name: ')
+        self.username = self.create_username()
 
-# creates user or logs in
+    def create_username(self):
+        temp_username = input('Enter a username: ')
+        while not self.available(temp_username):
+            temp_username = input('Enter a different username: ')
+        return temp_username
 
-
-def login():
-    try:
-        choice = int(input(
-            'Enter a number:\n\t(1) - Add an account\n\t(2) - Login\n\t'))
-    except ValueError:
-        print('Invalid input')
-        start()
-    if choice == 1:
-        current_user = create_user()
-        return current_user
-    elif choice == 2:
-        username = input('Enter your username: ')
-        current_user = find_user(username)
-        return current_user
-    else:
-        print('Invalid input')
-        start()
-
-# select options for logged in user
+    def available(self, name):
+        existing = UsersModel.select().where(UsersModel.username == name)
+        if existing.exists():
+            print(f'{name} is already taken by another user.')
+            return False
+        else:
+            return True
 
 
-def options(current_user):
-    try:
-        choice = int(input(
-            'Enter a number:\n\t(1) - Add a note\n\t(2) - View all notes\n\t(3) - Log Out\n\t(4) - Exit Program'))
-    except ValueError:
-        print('Invalid input')
-        options(current_user)
-    if choice == 1:
-        add_note(current_user)
-
-    elif choice == 2:
-        find_notes_by_user(current_user)
-
-    elif choice == 3:
-        start()
-    elif choice == 4:
-        sys.exit()
-    else:
-        print('Invalid input')
-        options(current_user)
-
-# starts app
-
-
-def start():
-    current_user = login()
-    options(current_user)
-
-
-start()
+home = Home()
+home.login()
