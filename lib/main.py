@@ -1,5 +1,6 @@
 from peewee import *
 from datetime import datetime
+import sys
 
 db = PostgresqlDatabase('notes', user='postgres',
                         password='', host='localhost', port=5432)
@@ -111,7 +112,26 @@ def login():
         print('Invalid input')
         login()
 
+# select options for logged in user
 
-print('current_user: ' + current_user.username)
-add_note(current_user)
-find_notes_by_user(current_user)
+
+def options(current_user):
+    try:
+        choice = int(input(
+            'Enter a number:\n\t(1) - Add a note\n\t(2) - View all notes\n\t(3) - Log Out\n\t(4) - Exit Program'))
+    except ValueError:
+        print('Invalid input')
+        options()
+    if choice == 1:
+        add_note(current_user)
+
+    elif choice == 2:
+        find_notes_by_user(current_user)
+
+    elif choice == 3:
+        login()
+    elif choice == 4:
+        sys.exit()
+    else:
+        print('Invalid input')
+        options()
