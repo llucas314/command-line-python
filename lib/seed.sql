@@ -1,0 +1,2 @@
+DROP DATABASE notes;
+CREATE DATABASE notes;

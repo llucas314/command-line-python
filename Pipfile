@@ -6,7 +6,7 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-psychopg2 = "*"
+psycopg2 = "*"
 peewee = "*"
 autopep8 = "*"
 
