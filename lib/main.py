@@ -28,6 +28,7 @@ class UsersModel(BaseModel):
 
 class NotesModel(BaseModel):
     note_id = AutoField()
+    title = CharField()
     message = TextField()
     date_created = CharField()
     username = ForeignKeyField(UsersModel, field='username', backref='notes')
@@ -45,10 +46,9 @@ class Home:
     def login(self):
         try:
             choice = int(input(
-                'Enter a number:\n\t(1) - Add an account\n\t(2) - Login\n\t'))
+                'Enter a number:\n\t(1) - Add an account\n\t(2) - Login\n\t(3) - Exit Program\n\t'))
             if choice == 1:
                 new_user = User()
-                print(f'new user: {new_user}')
                 self.current_user = UsersModel(
                     first_name=new_user.first_name, last_name=new_user.last_name, username=new_user.username)
                 self.current_user.save()
@@ -57,6 +57,8 @@ class Home:
                 username = input('Enter your username: ')
                 self.current_user = self.find_user(username)
                 self.options()
+            elif choice == 3:
+                sys.exit()
             else:
                 print('Invalid input')
                 self.login()
@@ -65,7 +67,6 @@ class Home:
             self.login()
 
     def options(self):
-        print(self.current_user.username)
         try:
             choice = int(input(
                 'Choose an option:\n\t(1) - Add a note\n\t(2) - View all notes\n\t(3) - Log Out\n\t(4) - Exit Program\n\t'))
@@ -85,8 +86,9 @@ class Home:
             self.options()
 
     def add_note(self):
-        message = input('Write a note: ')
-        new_note = Note(message, self.current_user.username)
+        title = input('Enter a title for your note: ')
+        message = input('Write the body of your note: ')
+        new_note = Note(title, message, self.current_user.username)
         new_note.create_note()
         print('Note created.')
 
@@ -98,14 +100,14 @@ class Home:
             print(f'Notes by {self.current_user.username}:')
             for index, note in enumerate(self.current_user.notes):
                 print(
-                    f'\tNote {length-index}: {note.message}\n\tCreated: {note.date_created}')
+                    f'\tNote {length-index}:\n\t\tTitle: {note.title}\n\t\tNote: {note.message}\n\t\tCreated: {note.date_created}')
 
     def find_user(self, name):
         try:
             user = UsersModel.get(UsersModel.username == name)
             return user
         except DoesNotExist:
-            print('User not found.')
+            print(f'User: {name} not found.')
             self.login()
 
 
@@ -131,12 +133,13 @@ class User:
 
 
 class Note:
-    def __init__(self, message, user):
+    def __init__(self, title, message, user):
+        self.title = title
         self.message = message
         self.username = user
 
     def create_note(self):
-        new_note = NotesModel(message=self.message, date_created=datetime.now().strftime(
+        new_note = NotesModel(title=self.title, message=self.message, date_created=datetime.now().strftime(
             "%a, %b %d, %Y @ %I:%M%p"), username=self.username)
         new_note.save()
 
