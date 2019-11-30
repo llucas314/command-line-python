@@ -44,6 +44,7 @@ class Home:
     def __init__(self):
         current_user = None
         length = 0
+    # initial option list for users to create an account or log in
 
     def login(self):
         try:
@@ -67,6 +68,7 @@ class Home:
         except ValueError:
             print('Invalid input')
             self.login()
+    # options for creating and viewing notes or deleting account
 
     def options(self):
         self.length = len(self.current_user.notes)
@@ -115,6 +117,7 @@ class Home:
             print(f'{self.current_user.username} does not have any notes currently.')
         else:
             print(f'Notes by {self.current_user.username}:')
+            # the notes are printed in decsending order and their id is saved in an array to use to retrieve the message later
             notes = []
             for index, note in enumerate(self.current_user.notes):
                 notes.append({note.note_id})
@@ -122,6 +125,7 @@ class Home:
                     f'\tNote {self.length-index} - Title: {note.title} - Created: {note.date_created}\n')
             self.choose_note(notes)
 
+    # this function gets the note number generated in find_notes_by_user, finds the corresponding note from the notes_array, and retrieves the note from the database
     def choose_note(self, notes_array):
         try:
             selected = self.length-int(input('Select a note by its number: '))
