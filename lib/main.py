@@ -42,6 +42,7 @@ db.create_tables([NotesModel])
 class Home:
     def __init__(self):
         current_user = None
+        length = 0
 
     def login(self):
         try:
@@ -67,6 +68,7 @@ class Home:
             self.login()
 
     def options(self):
+        self.length = len(self.current_user.notes)
         try:
             choice = int(input(
                 'Choose an option:\n\t(1) - Add a note\n\t(2) - View all notes\n\t(3) - Log Out\n\t(4) - Exit Program\n\t'))
@@ -90,17 +92,35 @@ class Home:
         message = input('Write the body of your note: ')
         new_note = Note(title, message, self.current_user.username)
         new_note.create_note()
+        self.length = len(self.current_user.notes)
         print('Note created.')
 
     def find_notes_by_user(self):
-        length = len(self.current_user.notes)
-        if length == 0:
+        if self.length == 0:
             print(f'{self.current_user.username} does not have any notes currently.')
         else:
             print(f'Notes by {self.current_user.username}:')
+            notes = []
             for index, note in enumerate(self.current_user.notes):
+                notes.append({note.note_id})
                 print(
-                    f'\tNote {length-index}:\n\t\tTitle: {note.title}\n\t\tNote: {note.message}\n\t\tCreated: {note.date_created}')
+                    f'\tNote {self.length-index} - Title: {note.title} - Created: {note.date_created}\n')
+            self.choose_note(notes)
+
+    def choose_note(self, notes_array):
+        try:
+            selected = self.length-int(input('Select a note by its number: '))
+            if selected >= 0 and selected < self.length:
+                selected_note = NotesModel.get(
+                    NotesModel.note_id == notes_array[selected])
+                print(
+                    f'\tNote {selected + self.length}:\n\t\tTitle: {selected_note.title}\n\t\tNote: {selected_note.message}\n\t\tCreated: {selected_note.date_created}\n')
+            else:
+                print('Invalid Input')
+                self.choose_note(notes_array)
+        except ValueError:
+            print('Invalid input')
+            self.choose_note(notes_array)
 
     def find_user(self, name):
         try:
