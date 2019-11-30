@@ -31,7 +31,8 @@ class NotesModel(BaseModel):
     title = CharField()
     message = TextField()
     date_created = CharField()
-    username = ForeignKeyField(UsersModel, field='username', backref='notes')
+    username = ForeignKeyField(
+        UsersModel, field='username', backref='notes', on_delete='CASCADE')
 
 
 # establishing tables
@@ -71,7 +72,7 @@ class Home:
         self.length = len(self.current_user.notes)
         try:
             choice = int(input(
-                'Choose an option:\n\t(1) - Add a note\n\t(2) - View all notes\n\t(3) - Log Out\n\t(4) - Exit Program\n\t'))
+                f'Hello, {self.current_user.first_name}! Choose an option:\n\t(1) - Add a note\n\t(2) - View all notes\n\t(3) - Log Out\n\t(4) - Delete Your Account\n\t(5) - Exit Program\n\t'))
             if choice == 1:
                 self.add_note()
             elif choice == 2:
@@ -79,6 +80,8 @@ class Home:
             elif choice == 3:
                 self.login()
             elif choice == 4:
+                self.delete_user()
+            elif choice == 5:
                 sys.exit()
             else:
                 print('Invalid input')
@@ -86,6 +89,18 @@ class Home:
         except ValueError:
             print('Invalid input')
             self.options()
+
+    def delete_user(self):
+        answer = input('Are you sure? (y/n):\n').lower()
+        if answer == 'y' or answer == 'yes':
+            print(
+                f'{self.current_user.username} has been deleted.\nGoodbye, {self.current_user.first_name}...FOREVER!')
+            self.current_user.delete_instance()
+            self.login()
+        elif answer == 'n' or answer == 'no':
+            self.options()
+        else:
+            print('Invalid Input')
 
     def add_note(self):
         title = input('Enter a title for your note: ')
