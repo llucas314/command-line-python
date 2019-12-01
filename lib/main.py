@@ -129,7 +129,9 @@ class Home:
         self.find_label.pack()
         # view single note
         self.frame_chosen_note = ttk.Frame(master)
-
+        self.chosen_note_label = ttk.Label(
+            self.frame_chosen_note, text='')
+        self.chosen_note_label.pack()
     # initial option list for users to create an account or log in
 
     def sign_up(self):
@@ -213,23 +215,29 @@ class Home:
                 note_list.append(index+1)
                 ttk.Label(self.frame_view_notes,
                           text=f'Note {index+1} - Title: {note.title} - Created: {note.date_created}').pack()
-            inner_frame = ttk.Frame(self.frame_view_notes).pack()
-            ttk.Label(inner_frame, text='Choose a Note:').pack(side=LEFT)
+            # inner_frame = ttk.Frame(self.frame_view_notes).pack()
+            ttk.Label(self.frame_view_notes,
+                      text='Choose a Note:').pack(side=LEFT)
             note_number = StringVar()
             combobox = ttk.Combobox(
-                inner_frame, textvariable=note_number)
-            combobox.pack(side=RIGHT)
+                self.frame_view_notes, textvariable=note_number)
+            combobox.pack()
             combobox.config(values=note_list)
-            self.choose_note(notes, combobox)
+            choose_button = ttk.Button(self.frame_view_notes, text='Submit',
+                                       command=lambda: self.choose_note(notes, combobox)).pack(side=RIGHT)
 
     # this function gets the note number generated in find_notes_by_user, finds the corresponding note from the notes_array, and retrieves the note from the database
+
     def choose_note(self, notes_array, box):
         self.frame_view_notes.pack_forget()
         self.frame_chosen_note.pack()
-        selected = box.get()
+        selected = int(box.get())
         selected_note = NotesModel.get(
-            NotesModel.note_id == notes_array[selected])
-        print(f'\tNote {selected + self.length}:\n\t\tTitle: {selected_note.title}\n\t\tNote: {selected_note.message}\n\t\tCreated: {selected_note.date_created}\n')
+            NotesModel.note_id == notes_array[selected-1])
+        self.chosen_note_label.config(
+            text=f'\tNote {selected }:\n\t\tTitle: {selected_note.title}\n\t\tNote: {selected_note.message}\n\t\tCreated: {selected_note.date_created}\n')
+        print(f'\tNote {selected }:\n\t\tTitle: {selected_note.title}\n\t\tNote: {selected_note.message}\n\t\tCreated: {selected_note.date_created}\n')
+        print(notes_array)
 
     def find_user(self, name):
         try:
