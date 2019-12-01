@@ -48,6 +48,7 @@ class Home:
     def __init__(self, master):
         self.current_user = None
         self.length = 0
+        self.logged_in = False
         # tkinter header
         self.frame_header = ttk.Frame(master)
         self.frame_header.pack()
@@ -65,10 +66,10 @@ class Home:
         self.account_button = ttk.Button(
             self.frame_body, text='Add Account', command=self.sign_up).grid(row=0, column=0)
         self.login_button = ttk.Button(
-            self.frame_body, text='Login').grid(row=0, column=1)
+            self.frame_body, text='Login', command=self.login).grid(row=0, column=1)
         self.exit_button = ttk.Button(
             self.frame_body, text='Exit', command=self.exit).grid(row=1, columnspan=2)
-        # tkinter login page
+        # tkinter sign up page
         self.frame_sign_up = ttk.Frame(master)
         self.sign_up_label = ttk.Label(
             self.frame_sign_up, text='Sign up below!')
@@ -84,6 +85,16 @@ class Home:
         self.entry_username.pack()
         self.submit_button = ttk.Button(
             self.frame_sign_up, text='Submit', command=self.create_user).pack()
+        # tkinter login page
+        self.frame_login = ttk.Frame(master)
+        self.login_label = ttk.Label(
+            self.frame_login, text='Login below!')
+        self.login_label.pack()
+        ttk.Label(self.frame_login, text='Username:').pack()
+        self.login_username = ttk.Entry(self.frame_login, width=24)
+        self.login_username.pack()
+        self.login_submit = ttk.Button(
+            self.frame_login, text='Submit', command=self.submit_on_login).pack()
 
     # initial option list for users to create an account or log in
 
@@ -99,24 +110,19 @@ class Home:
             self.current_user.save()
             self.options()
 
+    def login(self):
+        self.frame_body.pack_forget()
+        self.frame_login.pack()
+
+    def submit_on_login(self):
+        self.current_user = self.find_user(self.login_username.get())
+        if self.current_user.first_name:
+            self.login_label.config(
+                text=f'Welcome back, {self.current_user.first_name}!')
+        self.options()
+
     def exit(self):
         sys.exit()
-    # def login(self, choice):
-    #     if choice == 1:
-    #         new_user = User()
-    #         self.current_user = UsersModel(
-    #             first_name=new_user.first_name, last_name=new_user.last_name, username=new_user.username)
-    #         self.current_user.save()
-    #         self.options()
-    #     elif choice == 2:
-    #         username = input('Enter your username: ')
-    #         self.current_user = self.find_user(username)
-    #         self.options()
-    #     elif choice == 3:
-    #         sys.exit()
-    #     else:
-    #         print('Invalid input')
-    #         self.login()
 
     # options for creating and viewing notes or deleting account
 
@@ -196,7 +202,7 @@ class Home:
             user = UsersModel.get(UsersModel.username == name)
             return user
         except DoesNotExist:
-            print(f'User: {name} not found.')
+            self.login_label.config(text=f'User: {name} not found.')
             self.login()
 
 
