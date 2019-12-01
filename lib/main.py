@@ -1,6 +1,10 @@
 from peewee import *
 from datetime import datetime
+
 import sys
+from tkinter import *
+from tkinter import ttk
+
 
 db = PostgresqlDatabase('notes', user='postgres',
                         password='', host='localhost', port=5432)
@@ -41,9 +45,20 @@ db.create_tables([NotesModel])
 
 
 class Home:
-    def __init__(self):
-        current_user = None
-        length = 0
+    def __init__(self, master):
+        self.current_user = None
+        self.length = 0
+        self.frame_header = ttk.Frame(master)
+        self.frame_header.pack()
+
+        self.logo = PhotoImage(file='lib/notes-icon.png')
+        self.logo = self.logo.subsample(25, 25)
+        ttk.Label(self.frame_header, image=self.logo).grid(
+            row=0, column=0, rowspan=2)
+        ttk.Label(self.frame_header, text='The Notes App!').grid(
+            row=0, column=1)
+        ttk.Label(self.frame_header, wraplength=300,
+                  text="Create and view all your ideas.").grid(row=1, column=1)
     # initial option list for users to create an account or log in
 
     def login(self):
@@ -183,5 +198,13 @@ class Note:
         new_note.save()
 
 
-home = Home()
-home.login()
+# home = Home()
+# home.login()
+def main():
+    root = Tk()
+    home = Home(root)
+    root.mainloop()
+
+
+if __name__ == '__main__':
+    main()
