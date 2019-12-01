@@ -49,7 +49,6 @@ class Home:
         self.current_user = None
         self.length = 0
         # tkinter header
-
         self.frame_header = ttk.Frame(master)
         self.frame_header.pack()
         self.logo = PhotoImage(file='lib/notes-icon.png')
@@ -123,6 +122,13 @@ class Home:
         self.notes_body.pack()
         self.note_button = ttk.Button(
             self.frame_add_note, text='Submit', command=self.add_note).pack()
+        # tkinter view all notes page
+        self.frame_view_notes = ttk.Frame(master)
+        self.find_label = ttk.Label(
+            self.frame_view_notes, text='Choose a Note!')
+        self.find_label.pack()
+        # view single note
+        self.frame_chosen_note = ttk.Frame(master)
 
     # initial option list for users to create an account or log in
 
@@ -191,33 +197,39 @@ class Home:
         timer.start()
 
     def find_notes_by_user(self):
+        self.frame_options.pack_forget()
+        self.frame_view_notes.pack()
         if self.length == 0:
-            print(f'{self.current_user.username} does not have any notes currently.')
+            self.find_label.config(
+                text=f'{self.current_user.username} does not have any notes currently.')
         else:
-            print(f'Notes by {self.current_user.username}:')
+            self.find_label.config(
+                text=f'Notes by {self.current_user.username}:')
             # the notes are printed in decsending order and their id is saved in an array to use to retrieve the message later
             notes = []
+            note_list = []
             for index, note in enumerate(self.current_user.notes):
                 notes.append({note.note_id})
-                print(
-                    f'\tNote {self.length-index} - Title: {note.title} - Created: {note.date_created}\n')
-            self.choose_note(notes)
+                note_list.append(index+1)
+                ttk.Label(self.frame_view_notes,
+                          text=f'Note {index+1} - Title: {note.title} - Created: {note.date_created}').pack()
+            inner_frame = ttk.Frame(self.frame_view_notes).pack()
+            ttk.Label(inner_frame, text='Choose a Note:').pack(side=LEFT)
+            note_number = StringVar()
+            combobox = ttk.Combobox(
+                inner_frame, textvariable=note_number)
+            combobox.pack(side=RIGHT)
+            combobox.config(values=note_list)
+            self.choose_note(notes, combobox)
 
     # this function gets the note number generated in find_notes_by_user, finds the corresponding note from the notes_array, and retrieves the note from the database
-    def choose_note(self, notes_array):
-        try:
-            selected = self.length-int(input('Select a note by its number: '))
-            if selected >= 0 and selected < self.length:
-                selected_note = NotesModel.get(
-                    NotesModel.note_id == notes_array[selected])
-                print(
-                    f'\tNote {selected + self.length}:\n\t\tTitle: {selected_note.title}\n\t\tNote: {selected_note.message}\n\t\tCreated: {selected_note.date_created}\n')
-            else:
-                print('Invalid Input')
-                self.choose_note(notes_array)
-        except ValueError:
-            print('Invalid input')
-            self.choose_note(notes_array)
+    def choose_note(self, notes_array, box):
+        self.frame_view_notes.pack_forget()
+        self.frame_chosen_note.pack()
+        selected = box.get()
+        selected_note = NotesModel.get(
+            NotesModel.note_id == notes_array[selected])
+        print(f'\tNote {selected + self.length}:\n\t\tTitle: {selected_note.title}\n\t\tNote: {selected_note.message}\n\t\tCreated: {selected_note.date_created}\n')
 
     def find_user(self, name):
         try:
@@ -248,9 +260,6 @@ class User:
         if existing.exists():
             user_input.sign_up_label. config(
                 text=f'{name} is already taken by another user.')
-            # user_input.sign_up_label.set(
-            #     f'{name} is already taken by another user.')
-            # print(f'{name} is already taken by another user.')
             return False
         else:
             return True
