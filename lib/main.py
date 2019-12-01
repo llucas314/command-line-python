@@ -1,6 +1,6 @@
 from peewee import *
 from datetime import datetime
-
+from threading import Timer
 import sys
 from tkinter import *
 from tkinter import ttk
@@ -48,8 +48,8 @@ class Home:
     def __init__(self, master):
         self.current_user = None
         self.length = 0
-        self.logged_in = False
         # tkinter header
+
         self.frame_header = ttk.Frame(master)
         self.frame_header.pack()
         self.logo = PhotoImage(file='lib/notes-icon.png')
@@ -95,6 +95,34 @@ class Home:
         self.login_username.pack()
         self.login_submit = ttk.Button(
             self.frame_login, text='Submit', command=self.submit_on_login).pack()
+        # tkinter options page
+        self.frame_options = ttk.Frame(master)
+        self.options_label = ttk.Label(
+            self.frame_sign_up, text='Choose from the following')
+        self.options_label.pack()
+        self.submit_button = ttk.Button(
+            self.frame_options, text='Add A Note', command=self.show_add_note).pack()
+        self.submit_button = ttk.Button(
+            self.frame_options, text='View All Notes', command=self.find_notes_by_user).pack()
+        self.submit_button = ttk.Button(
+            self.frame_options, text='Log Out').pack()
+        self.submit_button = ttk.Button(
+            self.frame_options, text='Delete Your Account', command=self.delete_user).pack()
+        self.submit_button = ttk.Button(
+            self.frame_options, text='Exit Program', command=self.exit).pack()
+        # tkinter add notes page
+        self.frame_add_note = ttk.Frame(master)
+        self.notes_label = ttk.Label(
+            self.frame_add_note, text='Add a Note!')
+        self.notes_label.pack()
+        ttk.Label(self.frame_add_note, text='Title:').pack()
+        self.notes_title = ttk.Entry(self.frame_add_note, width=24)
+        self.notes_title.pack()
+        ttk.Label(self.frame_add_note, text='Message:').pack()
+        self.notes_body = Text(self.frame_add_note, width=24)
+        self.notes_body.pack()
+        self.note_button = ttk.Button(
+            self.frame_add_note, text='Submit', command=self.add_note).pack()
 
     # initial option list for users to create an account or log in
 
@@ -127,26 +155,11 @@ class Home:
     # options for creating and viewing notes or deleting account
 
     def options(self):
+        self.frame_login.pack_forget()
+        self.frame_sign_up.pack_forget()
+        self.frame_add_note.pack_forget()
+        self.frame_options.pack()
         self.length = len(self.current_user.notes)
-        try:
-            choice = int(input(
-                f'Hello, {self.current_user.first_name}! Choose an option:\n\t(1) - Add a note\n\t(2) - View all notes\n\t(3) - Log Out\n\t(4) - Delete Your Account\n\t(5) - Exit Program\n\t'))
-            if choice == 1:
-                self.add_note()
-            elif choice == 2:
-                self.find_notes_by_user()
-            elif choice == 3:
-                self.login()
-            elif choice == 4:
-                self.delete_user()
-            elif choice == 5:
-                sys.exit()
-            else:
-                print('Invalid input')
-            self.options()
-        except ValueError:
-            print('Invalid input')
-            self.options()
 
     def delete_user(self):
         answer = input('Are you sure? (y/n):\n').lower()
@@ -160,13 +173,22 @@ class Home:
         else:
             print('Invalid Input')
 
+    def show_add_note(self):
+        self.notes_label.config(text='Add a Note!')
+        self.notes_title.delete(0, 'end')
+        self.notes_body.delete(1.0, 'end')
+        self.frame_options.pack_forget()
+        self.frame_add_note.pack()
+
     def add_note(self):
-        title = input('Enter a title for your note: ')
-        message = input('Write the body of your note: ')
+        title = self.notes_title.get()
+        message = self.notes_body.get(1.0, 'end')
         new_note = Note(title, message, self.current_user.username)
         new_note.create_note()
         self.length = len(self.current_user.notes)
-        print('Note created.')
+        self.notes_label.config(text='Note created.')
+        timer = Timer(1.0, self.options)
+        timer.start()
 
     def find_notes_by_user(self):
         if self.length == 0:
