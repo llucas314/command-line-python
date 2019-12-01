@@ -48,9 +48,9 @@ class Home:
     def __init__(self, master):
         self.current_user = None
         self.length = 0
+        # tkinter header
         self.frame_header = ttk.Frame(master)
         self.frame_header.pack()
-
         self.logo = PhotoImage(file='lib/notes-icon.png')
         self.logo = self.logo.subsample(25, 25)
         ttk.Label(self.frame_header, image=self.logo).grid(
@@ -59,30 +59,65 @@ class Home:
             row=0, column=1)
         ttk.Label(self.frame_header, wraplength=300,
                   text="Create and view all your ideas.").grid(row=1, column=1)
+        # tkinter main body
+        self.frame_body = ttk.Frame(master)
+        self.frame_body.pack()
+        self.account_button = ttk.Button(
+            self.frame_body, text='Add Account', command=self.sign_up).grid(row=0, column=0)
+        self.login_button = ttk.Button(
+            self.frame_body, text='Login').grid(row=0, column=1)
+        self.exit_button = ttk.Button(
+            self.frame_body, text='Exit', command=self.exit).grid(row=1, columnspan=2)
+        # tkinter login page
+        self.frame_sign_up = ttk.Frame(master)
+        self.sign_up_label = ttk.Label(
+            self.frame_sign_up, text='Sign up below!')
+        self.sign_up_label.pack()
+        ttk.Label(self.frame_sign_up, text='First Name:').pack()
+        self.entry_first = ttk.Entry(self.frame_sign_up, width=24)
+        self.entry_first.pack()
+        ttk.Label(self.frame_sign_up, text='Last Name:').pack()
+        self.entry_last = ttk.Entry(self.frame_sign_up, width=24)
+        self.entry_last.pack()
+        ttk.Label(self.frame_sign_up, text='Username:').pack()
+        self.entry_username = ttk.Entry(self.frame_sign_up, width=24)
+        self.entry_username.pack()
+        self.submit_button = ttk.Button(
+            self.frame_sign_up, text='Submit', command=self.create_user).pack()
+
     # initial option list for users to create an account or log in
 
-    def login(self):
-        try:
-            choice = int(input(
-                'Enter a number:\n\t(1) - Add an account\n\t(2) - Login\n\t(3) - Exit Program\n\t'))
-            if choice == 1:
-                new_user = User()
-                self.current_user = UsersModel(
-                    first_name=new_user.first_name, last_name=new_user.last_name, username=new_user.username)
-                self.current_user.save()
-                self.options()
-            elif choice == 2:
-                username = input('Enter your username: ')
-                self.current_user = self.find_user(username)
-                self.options()
-            elif choice == 3:
-                sys.exit()
-            else:
-                print('Invalid input')
-                self.login()
-        except ValueError:
-            print('Invalid input')
-            self.login()
+    def sign_up(self):
+        self.frame_body.pack_forget()
+        self.frame_sign_up.pack()
+
+    def create_user(self):
+        new_user = User(self)
+        if new_user.username != None:
+            self.current_user = UsersModel(
+                first_name=new_user.first_name, last_name=new_user.last_name, username=new_user.username)
+            self.current_user.save()
+            self.options()
+
+    def exit(self):
+        sys.exit()
+    # def login(self, choice):
+    #     if choice == 1:
+    #         new_user = User()
+    #         self.current_user = UsersModel(
+    #             first_name=new_user.first_name, last_name=new_user.last_name, username=new_user.username)
+    #         self.current_user.save()
+    #         self.options()
+    #     elif choice == 2:
+    #         username = input('Enter your username: ')
+    #         self.current_user = self.find_user(username)
+    #         self.options()
+    #     elif choice == 3:
+    #         sys.exit()
+    #     else:
+    #         print('Invalid input')
+    #         self.login()
+
     # options for creating and viewing notes or deleting account
 
     def options(self):
@@ -166,21 +201,28 @@ class Home:
 
 
 class User:
-    def __init__(self):
-        self.first_name = input('Enter your first name: ')
-        self.last_name = input('Enter your last name: ')
-        self.username = self.create_username()
+    def __init__(self, user_input):
+        self.first_name = user_input.entry_first.get()
+        self.last_name = user_input.entry_last.get()
+        self.username = self.create_username(user_input)
 
-    def create_username(self):
-        temp_username = input('Enter a username: ')
-        while not self.available(temp_username):
-            temp_username = input('Enter a different username: ')
-        return temp_username
+    def create_username(self, user_input):
+        temp_username = user_input.entry_username.get()
+        if self.available(temp_username, user_input):
+            user_input.sign_up_label.config(text="User Created")
+            return temp_username
+        else:
+            temp_username = None
+            return temp_username
 
-    def available(self, name):
+    def available(self, name, user_input):
         existing = UsersModel.select().where(UsersModel.username == name)
         if existing.exists():
-            print(f'{name} is already taken by another user.')
+            user_input.sign_up_label. config(
+                text=f'{name} is already taken by another user.')
+            # user_input.sign_up_label.set(
+            #     f'{name} is already taken by another user.')
+            # print(f'{name} is already taken by another user.')
             return False
         else:
             return True
