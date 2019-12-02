@@ -52,8 +52,10 @@ class Home:
         style = ttk.Style(master)
         style.configure('TFrame', bg='#de6262',
                         )
-        style.configure('TLabel', font='helvetica 24',
-                        background='white', foreground='#de6262', anchor='center')
+        style.configure('TLabel', font='helvetica 20',
+                        foreground='#de6262', anchor='center')
+        style.configure('Header.TLabel', font='helvetica 26',
+                        foreground='#de6262', anchor='center')
         style.configure('TButton', foreground='#de6262',
                         font='helvetica 20', anchor='center')
         self.current_user = None
@@ -64,9 +66,10 @@ class Home:
         self.logo = PhotoImage(file='lib/notes-icon.png')
         self.logo = self.logo.subsample(10, 10)
         ttk.Label(self.frame_header, image=self.logo).pack(side=LEFT)
-        ttk.Label(self.frame_header, text='The Notes App!').pack()
+        ttk.Label(self.frame_header, text='The Notes App!', style='Header.TLabel').pack(
+            expand=True, fill=BOTH)
         ttk.Label(self.frame_header, wraplength=300,
-                  text="Track all your ideas.").pack()
+                  text="Track all your ideas.", style='Header.TLabel').pack(expand=True, fill=BOTH)
         # tkinter main body
         self.frame_body = ttk.Frame(master)
         self.frame_body.pack(expand=True, fill=BOTH)
@@ -134,7 +137,8 @@ class Home:
         self.notes_title.pack(expand=True, fill=BOTH)
         ttk.Label(self.frame_add_note, text='Message:').pack(
             expand=True, fill=BOTH)
-        self.notes_body = Text(self.frame_add_note, width=24)
+        self.notes_body = Text(self.frame_add_note,
+                               width=24, font='helvetica 20')
         self.notes_body.pack(expand=True, fill=BOTH)
         self.note_button = ttk.Button(
             self.frame_add_note, text='Submit', command=self.add_note).pack(expand=True, fill=BOTH)
@@ -216,15 +220,6 @@ class Home:
             messagebox.showinfo(
                 'User deleted', f'{self.current_user.username} has been deleted.\nGoodbye, {self.current_user.first_name}...FOREVER!')
             self.homepage()
-        # if answer == 'y' or answer == 'yes':
-        #     print(
-        #         f'{self.current_user.username} has been deleted.\nGoodbye, {self.current_user.first_name}...FOREVER!')
-        #     self.current_user.delete_instance()
-        #     self.login()
-        # elif answer == 'n' or answer == 'no':
-        #     self.options()
-        # else:
-        #     print('Invalid Input')
 
     def show_add_note(self):
         self.notes_label.config(text='Add a Note!')
