@@ -42,8 +42,8 @@ db.create_tables([NotesModel])
 
 class Home:
     def __init__(self):
-        current_user = None
-        length = 0
+        self.current_user = None
+        self.length = 0
     # initial option list for users to create an account or log in
 
     def login(self):
