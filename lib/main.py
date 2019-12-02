@@ -4,6 +4,8 @@ from threading import Timer
 import sys
 from tkinter import *
 from tkinter import ttk
+from tkinter import messagebox
+from tkinter.ttk import Style
 
 
 db = PostgresqlDatabase('notes', user='postgres',
@@ -46,97 +48,133 @@ db.create_tables([NotesModel])
 
 class Home:
     def __init__(self, master):
+        master.title('The Notes App')
+        style = ttk.Style(master)
+        style.configure('TFrame', bg='#de6262',
+                        )
+        style.configure('TLabel', font='helvetica 24',
+                        background='white', foreground='#de6262', anchor='center')
+        style.configure('TButton', foreground='#de6262',
+                        font='helvetica 20', anchor='center')
         self.current_user = None
         self.length = 0
         # tkinter header
         self.frame_header = ttk.Frame(master)
-        self.frame_header.pack()
+        self.frame_header.pack(fill=BOTH)
         self.logo = PhotoImage(file='lib/notes-icon.png')
-        self.logo = self.logo.subsample(25, 25)
-        ttk.Label(self.frame_header, image=self.logo).grid(
-            row=0, column=0, rowspan=2)
-        ttk.Label(self.frame_header, text='The Notes App!').grid(
-            row=0, column=1)
+        self.logo = self.logo.subsample(10, 10)
+        ttk.Label(self.frame_header, image=self.logo).pack(side=LEFT)
+        ttk.Label(self.frame_header, text='The Notes App!').pack()
         ttk.Label(self.frame_header, wraplength=300,
-                  text="Create and view all your ideas.").grid(row=1, column=1)
+                  text="Track all your ideas.").pack()
         # tkinter main body
         self.frame_body = ttk.Frame(master)
-        self.frame_body.pack()
+        self.frame_body.pack(expand=True, fill=BOTH)
         self.account_button = ttk.Button(
-            self.frame_body, text='Add Account', command=self.sign_up).grid(row=0, column=0)
+            self.frame_body, text='Add Account', command=self.sign_up).pack(expand=True, fill=BOTH)
         self.login_button = ttk.Button(
-            self.frame_body, text='Login', command=self.login).grid(row=0, column=1)
+            self.frame_body, text='Login', command=self.login).pack(expand=True, fill=BOTH)
         self.exit_button = ttk.Button(
-            self.frame_body, text='Exit', command=self.exit).grid(row=1, columnspan=2)
+            self.frame_body, text='Exit', command=self.exit).pack(expand=True, fill=BOTH)
         # tkinter sign up page
         self.frame_sign_up = ttk.Frame(master)
         self.sign_up_label = ttk.Label(
             self.frame_sign_up, text='Sign up below!')
-        self.sign_up_label.pack()
-        ttk.Label(self.frame_sign_up, text='First Name:').pack()
+        self.sign_up_label.pack(expand=True, fill=BOTH)
+        ttk.Label(self.frame_sign_up, text='First Name:').pack(
+            expand=True, fill=BOTH)
         self.entry_first = ttk.Entry(self.frame_sign_up, width=24)
-        self.entry_first.pack()
-        ttk.Label(self.frame_sign_up, text='Last Name:').pack()
+        self.entry_first.pack(expand=True, fill=BOTH)
+        ttk.Label(self.frame_sign_up, text='Last Name:').pack(
+            expand=True, fill=BOTH)
         self.entry_last = ttk.Entry(self.frame_sign_up, width=24)
-        self.entry_last.pack()
-        ttk.Label(self.frame_sign_up, text='Username:').pack()
+        self.entry_last.pack(expand=True, fill=BOTH)
+        ttk.Label(self.frame_sign_up, text='Username:').pack(
+            expand=True, fill=BOTH)
         self.entry_username = ttk.Entry(self.frame_sign_up, width=24)
-        self.entry_username.pack()
+        self.entry_username.pack(expand=True, fill=BOTH)
         self.submit_button = ttk.Button(
-            self.frame_sign_up, text='Submit', command=self.create_user).pack()
+            self.frame_sign_up, text='Submit', command=self.create_user).pack(expand=True, fill=BOTH)
         # tkinter login page
         self.frame_login = ttk.Frame(master)
         self.login_label = ttk.Label(
             self.frame_login, text='Login below!')
-        self.login_label.pack()
-        ttk.Label(self.frame_login, text='Username:').pack()
+        self.login_label.pack(expand=True, fill=BOTH)
+        ttk.Label(self.frame_login, text='Username:').pack(
+            expand=True, fill=BOTH)
         self.login_username = ttk.Entry(self.frame_login, width=24)
-        self.login_username.pack()
+        self.login_username.pack(expand=True, fill=BOTH)
         self.login_submit = ttk.Button(
-            self.frame_login, text='Submit', command=self.submit_on_login).pack()
+            self.frame_login, text='Submit', command=self.submit_on_login).pack(expand=True, fill=BOTH)
+        self.back_button = ttk.Button(
+            self.frame_login, text='Return to Home', command=self.homepage).pack(expand=True, fill=BOTH)
         # tkinter options page
         self.frame_options = ttk.Frame(master)
         self.options_label = ttk.Label(
-            self.frame_sign_up, text='Choose from the following')
-        self.options_label.pack()
+            self.frame_options, text='Choose from the following')
+        self.options_label.pack(expand=True, fill=BOTH)
         self.submit_button = ttk.Button(
-            self.frame_options, text='Add A Note', command=self.show_add_note).pack()
+            self.frame_options, text='Add A Note', command=self.show_add_note).pack(expand=True, fill=BOTH)
         self.submit_button = ttk.Button(
-            self.frame_options, text='View All Notes', command=self.find_notes_by_user).pack()
+            self.frame_options, text='View All Notes', command=self.find_notes_by_user).pack(expand=True, fill=BOTH)
         self.submit_button = ttk.Button(
-            self.frame_options, text='Log Out').pack()
+            self.frame_options, text='Log Out', command=self.homepage).pack(expand=True, fill=BOTH)
         self.submit_button = ttk.Button(
-            self.frame_options, text='Delete Your Account', command=self.delete_user).pack()
+            self.frame_options, text='Delete Your Account', command=self.delete_user).pack(expand=True, fill=BOTH)
         self.submit_button = ttk.Button(
-            self.frame_options, text='Exit Program', command=self.exit).pack()
+            self.frame_options, text='Exit Program', command=self.exit).pack(expand=True, fill=BOTH)
         # tkinter add notes page
         self.frame_add_note = ttk.Frame(master)
         self.notes_label = ttk.Label(
             self.frame_add_note, text='Add a Note!')
-        self.notes_label.pack()
-        ttk.Label(self.frame_add_note, text='Title:').pack()
+        self.notes_label.pack(expand=True, fill=BOTH)
+        ttk.Label(self.frame_add_note, text='Title:').pack(
+            expand=True, fill=BOTH)
         self.notes_title = ttk.Entry(self.frame_add_note, width=24)
-        self.notes_title.pack()
-        ttk.Label(self.frame_add_note, text='Message:').pack()
+        self.notes_title.pack(expand=True, fill=BOTH)
+        ttk.Label(self.frame_add_note, text='Message:').pack(
+            expand=True, fill=BOTH)
         self.notes_body = Text(self.frame_add_note, width=24)
-        self.notes_body.pack()
+        self.notes_body.pack(expand=True, fill=BOTH)
         self.note_button = ttk.Button(
-            self.frame_add_note, text='Submit', command=self.add_note).pack()
+            self.frame_add_note, text='Submit', command=self.add_note).pack(expand=True, fill=BOTH)
         # tkinter view all notes page
         self.frame_view_notes = ttk.Frame(master)
         self.find_label = ttk.Label(
             self.frame_view_notes, text='Choose a Note!')
-        self.find_label.pack()
-        # view single note
+        self.find_label.pack(expand=True, fill=BOTH)
+        self.choose_label = ttk.Label(self.frame_view_notes,
+                                      text='Choose a Note:')
+        self.note_number = StringVar()
+        self.combobox = ttk.Combobox(
+            self.frame_view_notes, textvariable=self.note_number)
+        self.choose_button = ttk.Button(self.frame_view_notes, text='Submit')
+        # tkinter view single note
         self.frame_chosen_note = ttk.Frame(master)
         self.chosen_note_label = ttk.Label(
             self.frame_chosen_note, text='')
-        self.chosen_note_label.pack()
+        self.chosen_note_label.pack(expand=True, fill=BOTH)
+        self.back_button = ttk.Button(self.frame_chosen_note, text='Return to Options',
+                                      command=self.options)
+        #  tkinter delete user page
     # initial option list for users to create an account or log in
 
-    def sign_up(self):
+    def forget_all(self):
+        self.frame_chosen_note.pack_forget()
+        self.frame_login.pack_forget()
+        self.frame_sign_up.pack_forget()
+        self.frame_add_note.pack_forget()
+        self.frame_view_notes.pack_forget()
+        self.frame_options.pack_forget()
         self.frame_body.pack_forget()
-        self.frame_sign_up.pack()
+
+    def homepage(self):
+        self.forget_all()
+        self.frame_body.pack(expand=True, fill=BOTH)
+
+    def sign_up(self):
+        self.forget_all()
+        self.frame_sign_up.pack(expand=True, fill=BOTH)
 
     def create_user(self):
         new_user = User(self)
@@ -147,8 +185,11 @@ class Home:
             self.options()
 
     def login(self):
-        self.frame_body.pack_forget()
-        self.frame_login.pack()
+        self.forget_all()
+        self.login_label.config(
+            text='Login Below!')
+        self.login_username.delete(0, 'end')
+        self.frame_login.pack(expand=True, fill=BOTH)
 
     def submit_on_login(self):
         self.current_user = self.find_user(self.login_username.get())
@@ -163,30 +204,34 @@ class Home:
     # options for creating and viewing notes or deleting account
 
     def options(self):
-        self.frame_login.pack_forget()
-        self.frame_sign_up.pack_forget()
-        self.frame_add_note.pack_forget()
-        self.frame_options.pack()
+        self.forget_all()
+        self.frame_options.pack(expand=True, fill=BOTH)
         self.length = len(self.current_user.notes)
 
     def delete_user(self):
-        answer = input('Are you sure? (y/n):\n').lower()
-        if answer == 'y' or answer == 'yes':
-            print(
-                f'{self.current_user.username} has been deleted.\nGoodbye, {self.current_user.first_name}...FOREVER!')
+        message_box = messagebox.askyesno(
+            'Deletion Warning', 'Are you sure you want to delete your account!', icon='warning')
+        if message_box == True:
             self.current_user.delete_instance()
-            self.login()
-        elif answer == 'n' or answer == 'no':
-            self.options()
-        else:
-            print('Invalid Input')
+            messagebox.showinfo(
+                'User deleted', f'{self.current_user.username} has been deleted.\nGoodbye, {self.current_user.first_name}...FOREVER!')
+            self.homepage()
+        # if answer == 'y' or answer == 'yes':
+        #     print(
+        #         f'{self.current_user.username} has been deleted.\nGoodbye, {self.current_user.first_name}...FOREVER!')
+        #     self.current_user.delete_instance()
+        #     self.login()
+        # elif answer == 'n' or answer == 'no':
+        #     self.options()
+        # else:
+        #     print('Invalid Input')
 
     def show_add_note(self):
         self.notes_label.config(text='Add a Note!')
         self.notes_title.delete(0, 'end')
         self.notes_body.delete(1.0, 'end')
-        self.frame_options.pack_forget()
-        self.frame_add_note.pack()
+        self.forget_all()
+        self.frame_add_note.pack(expand=True, fill=BOTH)
 
     def add_note(self):
         title = self.notes_title.get()
@@ -200,10 +245,14 @@ class Home:
 
     def find_notes_by_user(self):
         self.frame_options.pack_forget()
-        self.frame_view_notes.pack()
+        self.choose_label.pack_forget()
+        self.combobox.pack_forget()
+        self.frame_view_notes.pack(expand=True, fill=BOTH)
         if self.length == 0:
             self.find_label.config(
                 text=f'{self.current_user.username} does not have any notes currently.')
+            back_button = ttk.Button(self.frame_view_notes, text='Return to Options',
+                                     command=self.options).pack(expand=True, fill=BOTH)
         else:
             self.find_label.config(
                 text=f'Notes by {self.current_user.username}:')
@@ -214,30 +263,26 @@ class Home:
                 notes.append({note.note_id})
                 note_list.append(index+1)
                 ttk.Label(self.frame_view_notes,
-                          text=f'Note {index+1} - Title: {note.title} - Created: {note.date_created}').pack()
-            # inner_frame = ttk.Frame(self.frame_view_notes).pack()
-            ttk.Label(self.frame_view_notes,
-                      text='Choose a Note:').pack(side=LEFT)
-            note_number = StringVar()
-            combobox = ttk.Combobox(
-                self.frame_view_notes, textvariable=note_number)
-            combobox.pack()
-            combobox.config(values=note_list)
-            choose_button = ttk.Button(self.frame_view_notes, text='Submit',
-                                       command=lambda: self.choose_note(notes, combobox)).pack(side=RIGHT)
+                          text=f'Note {index+1} - Title: {note.title} - Created: {note.date_created}').pack(expand=True, fill=BOTH)
+            # inner_frame = ttk.Frame(self.frame_view_notes).pack(expand=True, fill=BOTH)
+            self.choose_label.pack(expand=True, fill=BOTH)
+            self.combobox.pack(expand=True, fill=BOTH)
+            self.combobox.config(values=note_list)
+            self.choose_button.config(command=lambda: self.choose_note(notes))
+            self.choose_button.pack(expand=True, fill=BOTH)
 
     # this function gets the note number generated in find_notes_by_user, finds the corresponding note from the notes_array, and retrieves the note from the database
 
-    def choose_note(self, notes_array, box):
+    def choose_note(self, notes_array):
         self.frame_view_notes.pack_forget()
-        self.frame_chosen_note.pack()
-        selected = int(box.get())
+        self.back_button.pack_forget()
+        self.frame_chosen_note.pack(expand=True, fill=BOTH)
+        selected = int(self.combobox.get())
         selected_note = NotesModel.get(
             NotesModel.note_id == notes_array[selected-1])
         self.chosen_note_label.config(
             text=f'\tNote {selected }:\n\t\tTitle: {selected_note.title}\n\t\tNote: {selected_note.message}\n\t\tCreated: {selected_note.date_created}\n')
-        print(f'\tNote {selected }:\n\t\tTitle: {selected_note.title}\n\t\tNote: {selected_note.message}\n\t\tCreated: {selected_note.date_created}\n')
-        print(notes_array)
+        self.back_button.pack(expand=True, fill=BOTH)
 
     def find_user(self, name):
         try:
@@ -290,6 +335,7 @@ class Note:
 def main():
     root = Tk()
     home = Home(root)
+    # root.geometry("500x300+450+300")
     root.mainloop()
 
 
