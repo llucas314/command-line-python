@@ -4,10 +4,11 @@ This program is a note taking app that allows users to create and view their not
 ### Screenshots
 
 ![notes_app](./images/notes_app.png)
+![tkinter](./images/tkinter.png)
 
 ### Built With
 
-- Python
+- Python/Tkinter
 - SQL/Peewee/Postgres
 
 ### Installation
@@ -34,7 +35,7 @@ If you have any comments or suggestions please feel free to contact me through g
 
 ### Future Additions
 
-I would like to add a front end to this application using tkinter and increase CRUD capabilities.
+I would like to improve the front end to this application, and try using another GUI interface. Also I would like to increase CRUD capabilities.
 
 ### Final Thoughts
 
